@@ -1,0 +1,452 @@
+<title>Product Portfolio Returns</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky asset-class rail on top, section tabs under it, one working panel at a time; ranked lists do the talking. */
+:root{
+  --bg:#f3f6f5; --panel:#ffffff; --ink:#12211e; --ink2:#4a5b57; --ink3:#7b8a86; --line:#dbe3e0; --soft:#e9efed;
+  --accent:#0b5d57; --accent-ink:#ffffff; --accent-soft:#d9ecea;
+  --good:#0a7a3d; --bad:#c2372f; --warn:#a86a00;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a; --s4:#eda100; --s5:#e87ba4; --neg:#e34948;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f1716; --panel:#172221; --ink:#eef4f2; --ink2:#b3c2be; --ink3:#82928e; --line:#2a3836; --soft:#1e2b29;
+  --accent:#5fc7bd; --accent-ink:#06211f; --accent-soft:#1d3835;
+  --good:#4cc487; --bad:#f0827b; --warn:#e0a84a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --neg:#e66767; color-scheme:dark } }
+:root[data-theme="dark"]{
+  --bg:#0f1716; --panel:#172221; --ink:#eef4f2; --ink2:#b3c2be; --ink3:#82928e; --line:#2a3836; --soft:#1e2b29;
+  --accent:#5fc7bd; --accent-ink:#06211f; --accent-soft:#1d3835;
+  --good:#4cc487; --bad:#f0827b; --warn:#e0a84a;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70; --s4:#c98500; --s5:#d55181; --neg:#e66767; color-scheme:dark }
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:14px/1.5 var(--body);margin:0}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:26px;font-weight:700;letter-spacing:-.01em}
+h2{font-size:21px;font-weight:700}
+h3{font-size:15px;font-weight:700}
+p{margin:0}
+.muted{color:var(--ink2)} .tiny{font-size:12px;color:var(--ink3)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.pos{color:var(--good)} .negv{color:var(--bad)}
+a{color:var(--accent)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:0 auto;padding:12px 20px 0;display:flex;flex-direction:column;gap:10px}
+.brand{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;justify-content:space-between}
+.brand .asof{font-size:12px;color:var(--ink3)}
+.rail{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.rail span,.rail b{white-space:nowrap;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);color:var(--ink3);font-weight:500}
+.rail b{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.rail em{font-style:normal;opacity:.7;margin-left:4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -4px}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:8px 10px 9px;cursor:pointer;color:var(--ink2);font-weight:500;white-space:nowrap}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+
+section.tab{display:flex;flex-direction:column;gap:22px;padding-top:24px}
+.head{display:flex;flex-direction:column;gap:6px;max-width:78ch}
+.q{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.card-h{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;flex-wrap:wrap}
+.card-h>div:first-child{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 280px}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g5{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+.kpi{display:flex;flex-direction:column;gap:2px;padding:14px 16px;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.kpi b{font-family:var(--display);font-size:24px;font-weight:700;line-height:1.1}
+.kpi span{font-size:12px;color:var(--ink2)}
+.kpi small{font-size:11.5px;color:var(--ink3)}
+.ans{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0;cursor:pointer;text-align:left;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ans:hover{background:var(--accent-soft)}
+.ans .a{font-family:var(--display);font-weight:700;font-size:17px;line-height:1.2}
+.ans .d{font-size:12.5px;color:var(--ink2)}
+
+.ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:none;padding:5px 11px;cursor:pointer;color:var(--ink2);font-size:13px;border-right:1px solid var(--line)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.ctl label{font-size:12px;color:var(--ink3);display:flex;gap:6px;align-items:center}
+select,input[type=search]{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:5px 9px;max-width:100%}
+input[type=search]{min-width:min(100%,240px)}
+
+.rank{display:flex;flex-direction:column}
+.rr{display:grid;grid-template-columns:28px minmax(120px,1.5fr) minmax(90px,2fr) 70px;gap:10px;align-items:center;padding:6px 4px;border-bottom:1px solid var(--soft)}
+.rr:last-child{border-bottom:0}
+.rr:hover{background:var(--soft)}
+.rr .i{font-family:var(--mono);font-size:12px;color:var(--ink3);text-align:right}
+.rr .l{min-width:0}
+.rr .l b{font-weight:600;display:block;overflow-wrap:anywhere}
+.rr .l small{color:var(--ink3);font-size:11.5px;display:block;overflow-wrap:anywhere}
+.rr .v{font-family:var(--mono);text-align:right;font-weight:500}
+.track{position:relative;height:14px}
+.track i{position:absolute;top:1px;bottom:1px;border-radius:0 4px 4px 0;background:var(--s1);min-width:2px}
+.track i.n{border-radius:4px 0 0 4px;background:var(--neg)}
+.track u{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--ink3)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:baseline}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)}
+.c-Equity{background:var(--s1)} .c-FixedIncome{background:var(--s2)} .c-Hybrid{background:var(--s3)} .c-Commodity{background:var(--s4)} .c-Global{background:var(--s5)}
+@media (max-width:560px){ .rr{grid-template-columns:22px minmax(0,1fr) 64px} .rr .track{grid-column:2 / 4;grid-row:2} }
+
+.tw{overflow-x:auto;margin:0 -4px}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th,td{padding:7px 8px;text-align:left;border-bottom:1px solid var(--soft);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);font-weight:600;white-space:nowrap;border-bottom:1px solid var(--line);position:relative}
+th.s{cursor:pointer;user-select:none} th.s:hover{color:var(--ink)}
+th[data-dir="1"]::after{content:" ▲"} th[data-dir="-1"]::after{content:" ▼"}
+td.r,th.r{text-align:right} td.r{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td small{display:block;color:var(--ink3);font-size:11.5px}
+tbody tr:hover{background:var(--soft)}
+.more{align-self:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer}
+.more:hover{border-color:var(--accent);color:var(--accent)}
+.pill{display:inline-block;padding:1px 8px;border-radius:999px;font-size:11.5px;background:var(--soft);color:var(--ink2);white-space:nowrap}
+.pill.y{background:var(--accent-soft);color:var(--accent)} .pill.core{background:var(--accent);color:var(--accent-ink)}
+.cellbar{display:inline-block;height:8px;border-radius:0 3px 3px 0;background:var(--s1);vertical-align:middle;margin-right:6px}
+.win{border:1px solid var(--accent);background:var(--accent-soft)}
+.win .big{font-family:var(--display);font-size:22px;font-weight:700;line-height:1.15}
+.stat-row{display:flex;gap:18px;flex-wrap:wrap}
+.stat-row div{display:flex;flex-direction:column}
+.stat-row b{font-family:var(--mono);font-size:16px;font-weight:500}
+.stat-row span{font-size:11.5px;color:var(--ink3)}
+.note{font-size:12.5px;color:var(--ink2);border-left:3px solid var(--line);padding-left:10px;max-width:90ch}
+svg text{font-family:var(--mono);font-size:10.5px;fill:var(--ink3)}
+#tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);padding:7px 10px;border-radius:6px;font-size:12px;z-index:50;max-width:260px;line-height:1.35}
+ul.plain{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;max-width:90ch}
+</style>
+
+<div class="top"><div class="top-in">
+  <div class="brand"><h1>Product Portfolio Returns</h1><span class="asof" id="asof"></span></div>
+  <div class="rail" aria-label="Asset classes"><b>Mutual funds</b><span>Listed equity<em>next</em></span><span>Fixed income &amp; deposits<em>next</em></span><span>Gold &amp; commodities<em>next</em></span><span>PMS / AIF / SIF<em>next</em></span><span>Real estate, REITs &amp; InvITs<em>next</em></span><span>Insurance &amp; pensions<em>next</em></span></div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+</div></div>
+
+<div class="wrap">
+
+<section class="tab" id="t-overview">
+  <div class="head"><span class="q">Mutual funds · summary</span><h2>What the Indian mutual fund universe has returned, and to whom it paid off</h2>
+  <p class="muted" id="ov-lede"></p></div>
+  <div class="grid g5" id="kpis"></div>
+  <div><h3 style="margin-bottom:10px">Answers at a glance</h3><div class="grid g3" id="answers"></div></div>
+  <div class="card"><div class="card-h"><div><h3>Average annualised return by asset category</h3><p class="tiny">Simple average of all funds with a full history for each period. Periods over one year are CAGR.</p></div></div><div class="tw" id="broad"></div></div>
+</section>
+
+<section class="tab" id="t-returns" hidden>
+  <div class="head"><span class="q">Question 1</span><h2>Which fund types return the most, by category and sub-category?</h2>
+  <p class="muted">Every sub-category ranked from highest to lowest return. Switch the period, the averaging method, or narrow to one asset category.</p></div>
+  <div class="ctl"><div class="seg" data-ctl="h"></div>
+    <div class="seg" data-ctl="metric"><button data-v="avg">Average</button><button data-v="med">Median</button><button data-v="wavg">AUM-weighted</button></div>
+    <div class="seg" data-ctl="cat"></div>
+    <label><input type="checkbox" id="min3" checked> Only sub-categories with 3+ funds</label></div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><div><h3>Asset categories</h3><p class="tiny" id="cat-sub"></p></div></div><div class="rank" id="cat-rank"></div></div>
+    <div class="card win" id="ret-call"></div>
+  </div>
+  <div class="card"><div class="card-h"><div><h3>Sub-categories, highest return first</h3><p class="tiny" id="sub-sub"></p></div>
+    <div class="legend" id="cat-legend"></div></div><div class="rank" id="sub-rank"></div></div>
+</section>
+
+<section class="tab" id="t-amc" hidden>
+  <div class="head"><span class="q">Question 2</span><h2>Which AMC and which funds have been the best across categories?</h2>
+  <p class="muted">Raw returns favour whoever runs the most small-cap money, so AMCs are scored on how their actively managed funds rank against peers in the same sub-category. A percentile of 100 means the best fund in its peer group, 50 means the middle.</p></div>
+  <div class="ctl"><div class="seg" data-ctl="h"></div></div>
+  <div class="grid g3" id="amc-cat"></div>
+  <div class="card"><div class="card-h"><div><h3>AMC league table</h3><p class="tiny" id="amc-sub"></p></div></div><div class="tw" id="amc-table"></div><button class="more" id="amc-more" hidden></button></div>
+  <div class="card"><div class="card-h"><div><h3>Best fund in each sub-category</h3><p class="tiny">The top fund on the selected period, with the peer average for scale.</p></div>
+    <div class="seg" data-ctl="cat"></div></div><div class="tw" id="best-table"></div></div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><div><h3>Highest returns overall</h3><p class="tiny" id="top-sub"></p></div></div><div class="rank" id="top-rank"></div></div>
+    <div class="card"><div class="card-h"><div><h3>Consistent leaders</h3><p class="tiny">Funds in the top quarter of their sub-category on 3, 5 and 10 years at once. Sorted by 10-year return.</p></div></div><div class="tw" id="cons-table"></div></div>
+  </div>
+</section>
+
+<section class="tab" id="t-costs" hidden>
+  <div class="head"><span class="q">Question 3</span><h2>What do investors pay, who charges the most, and which funds give the most return per rupee of cost?</h2>
+  <p class="muted">Returns shown everywhere in this dashboard are already net of the expense ratio, because the ratio is deducted from the NAV every day.</p></div>
+  <div class="card"><div class="card-h"><div><h3>What an investor pays</h3><p class="tiny">Only the expense ratio goes to the AMC and its service providers. The rest are statutory or go back into the scheme.</p></div></div><div class="tw" id="exp-types"></div></div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><div><h3>Expense ratio by asset category</h3><p class="tiny">Average TER, direct plan against regular plan of the same scheme. The gap is mostly distributor commission.</p></div></div><div class="tw" id="ter-cat"></div></div>
+    <div class="card win" id="ter-call"></div>
+  </div>
+  <div class="card"><div class="card-h"><div><h3>Which AMC charges the most?</h3><p class="tiny">Average TER of each AMC's actively managed equity funds, the only like-for-like basis. AMCs with fewer than 3 such funds are left out.</p></div>
+    <div class="seg" data-ctl="plan"><button data-v="r">Regular plan</button><button data-v="d">Direct plan</button></div></div><div class="rank" id="ter-rank"></div><button class="more" id="ter-more" hidden></button></div>
+  <div class="card"><div class="card-h"><div><h3>Does paying more buy more return?</h3><p class="tiny" id="sc-sub"></p></div></div><div id="scatter"></div></div>
+  <div class="card"><div class="card-h"><div><h3>Best return per unit of expense</h3><p class="tiny">Annualised return divided by the direct-plan TER. Funds under ₹100 crore are left out. Passive funds win on this ratio almost by construction, so the active list is shown separately.</p></div>
+    <div class="ctl"><div class="seg" data-ctl="h"></div><div class="seg" data-ctl="eff"><button data-v="active">Active equity</button><button data-v="all">All equity incl. index</button><button data-v="hybrid">Hybrid</button><button data-v="debt">Debt</button></div></div></div><div class="tw" id="eff-table"></div></div>
+</section>
+
+<section class="tab" id="t-styles" hidden>
+  <div class="head"><span class="q">Question 4</span><h2>How do the investment styles compare: growth, value, contrarian and the rest?</h2>
+  <p class="muted">SEBI gives value, contra, dividend-yield and focused funds their own categories, so those are measured directly. Growth has no category of its own, so it is inferred from portfolio P/E.</p></div>
+  <div class="ctl"><div class="seg" data-ctl="h"></div></div>
+  <div class="card"><div class="card-h"><div><h3>Returns by style</h3><p class="tiny" id="st-sub"></p></div></div><div class="rank" id="st-rank"></div></div>
+  <div class="card"><div class="card-h"><div><h3>What each style means, and its leader</h3></div></div><div class="tw" id="st-table"></div></div>
+  <div class="grid g2">
+    <div class="card"><div class="card-h"><div><h3>Growth, blend or value by portfolio P/E</h3><p class="tiny" id="pe-sub"></p></div></div><div class="tw" id="pe-table"></div></div>
+    <div class="card"><div class="card-h"><div><h3>Size style: large, mid and small cap</h3><p class="tiny">Active funds in each SEBI market-cap category.</p></div></div><div class="tw" id="cap-table"></div></div>
+  </div>
+</section>
+
+<section class="tab" id="t-elss" hidden>
+  <div class="head"><span class="q">Question 5</span><h2>ELSS: what do tax-saving funds return on average, and which is the best one now?</h2>
+  <p class="muted">Equity Linked Savings Schemes carry a 3-year lock-in and qualify for the Section 80C deduction under the old tax regime. Pulse lists them as “Tax Savings”.</p></div>
+  <div class="grid g5" id="elss-kpi"></div>
+  <div class="grid g2"><div class="card win" id="elss-call"></div>
+  <div class="card"><div class="card-h"><div><h3>ELSS average against its peers</h3><p class="tiny">Average annualised return, ELSS next to flexi-cap funds and the Nifty 500.</p></div></div><div class="tw" id="elss-cmp"></div></div></div>
+  <div class="card"><div class="card-h"><div><h3>Every ELSS fund</h3><p class="tiny">Score is the fund's average percentile within ELSS across 3, 5 and 10-year return and 3-year Sharpe ratio. Click a column to sort.</p></div></div><div class="tw" id="elss-table"></div></div>
+</section>
+
+<section class="tab" id="t-explorer" hidden>
+  <div class="head"><span class="q">Fund explorer</span><h2>Every scheme in the data set</h2><p class="muted">Growth option, direct plan where one exists. ETFs have a single plan. Click a column to sort.</p></div>
+  <div class="ctl"><input type="search" id="ex-q" placeholder="Search fund or AMC" aria-label="Search fund or AMC">
+    <select id="ex-cat" aria-label="Asset category"></select><select id="ex-sub" aria-label="Sub-category"></select><select id="ex-amc" aria-label="AMC"></select>
+    <span class="tiny" id="ex-count"></span></div>
+  <div class="card"><div class="tw" id="ex-table"></div><button class="more" id="ex-more" hidden></button></div>
+</section>
+
+<section class="tab" id="t-map" hidden>
+  <div class="head"><span class="q">Product map</span><h2>Which financial products fit retail, high-net-worth and institutional investors</h2>
+  <p class="muted">A working map for the wider portfolio. Mutual funds are the only asset class with return data loaded so far; the other rows mark what the next sections will cover.</p></div>
+  <div class="legend"><span><span class="pill core">Core</span> a mainstay for that investor</span><span><span class="pill y">Used</span> open and commonly held</span><span><span class="pill">–</span> not open, or rarely relevant</span></div>
+  <div class="card"><div class="tw" id="map-table"></div></div>
+</section>
+
+<section class="tab" id="t-method" hidden>
+  <div class="head"><span class="q">Method</span><h2>Where the numbers come from</h2></div>
+  <div class="card"><ul class="plain" id="method"></ul></div>
+</section>
+
+</div>
+<div id="tip" hidden></div>
+
+<script>
+const D = /*DATA*/;
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pct=(v,d=1)=>v==null||isNaN(v)?'<span class="tiny">–</span>':`<span class="${v<0?'negv':''}">${v>0?'+':''}${v.toFixed(d)}%</span>`;
+const pctT=(v,d=1)=>v==null?'–':(v>0?'+':'')+v.toFixed(d)+'%';
+const nf=(v,d=2)=>v==null||isNaN(v)?'–':v.toFixed(d);
+const cr=v=>v==null?'–':v>=100000?'₹'+(v/100000).toFixed(2)+' lakh cr':'₹'+Math.round(v).toLocaleString('en-IN')+' cr';
+const cls=c=>'c-'+String(c).replace(/\s/g,'');
+const F=D.funds, HN={'1Y':'1 year','3Y':'3 years','5Y':'5 years','10Y':'10 years'};
+const S={h:'5Y',metric:'avg',cat:'All',plan:'r',eff:'active',tab:'overview'};
+const TABS=[['overview','Overview'],['returns','Returns by category'],['amc','AMCs & funds'],['costs','Costs'],['styles','Styles'],['elss','ELSS'],['explorer','Fund explorer'],['map','Product map'],['method','Method']];
+const fundL=f=>`<b>${esc(f.n)}</b><small>${esc(f.a)} · ${esc(f.sub)}</small>`;
+
+function track(v,lo,hi,color){
+  if(v==null) return '<div class="track"></div>';
+  const span=(hi-lo)||1, z=(0-lo)/span*100, w=Math.abs(v)/span*100;
+  const left=v<0?z-w:z;
+  return `<div class="track">${lo<0?`<u style="left:${z}%"></u>`:''}<i class="${v<0?'n':''}" style="left:${left}%;width:${w}%;${v>=0&&color?`background:${color}`:''}"></i></div>`;
+}
+function rank(el,rows,o={}){ // rows:{l (html),v,color,tip}
+  const vals=rows.map(r=>r.v).filter(v=>v!=null);
+  const lo=Math.min(0,...vals), hi=Math.max(0,...vals);
+  el.innerHTML=rows.map((r,i)=>`<div class="rr"${r.tip?` title="${esc(r.tip)}"`:''}><span class="i">${r.i??i+1}</span><div class="l">${r.l}</div>${track(r.v,lo,hi,r.color)}<span class="v">${(o.fmt||pct)(r.v)}</span></div>`).join('')||'<p class="tiny">No funds have a full history for this period.</p>';
+}
+function table(el,cols,rows,o={}){
+  const st=el._st||(el._st={k:o.sort??null,dir:o.dir??-1,lim:o.limit||1e9});
+  let rs=rows.slice();
+  if(st.k!=null){const c=cols[st.k], val=c.val||(r=>r[c.k]); rs.sort((a,b)=>{const x=val(a),y=val(b); if(x==null&&y==null)return 0; if(x==null)return 1; if(y==null)return -1; return (typeof x==='string'?x.localeCompare(y):x-y)*st.dir;});}
+  const shown=rs.slice(0,st.lim);
+  el.innerHTML=`<table><thead><tr>${o.idx?'<th class="r">#</th>':''}${cols.map((c,i)=>`<th class="${c.r?'r ':''}${c.nosort?'':'s'}" data-i="${i}"${st.k===i?` data-dir="${st.dir}"`:''}>${c.label}</th>`).join('')}</tr></thead><tbody>${shown.map((r,i)=>`<tr>${o.idx?`<td class="r">${i+1}</td>`:''}${cols.map(c=>`<td class="${c.r?'r':''}">${c.f?c.f(r):esc(r[c.k])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  $$('th.s',el).forEach(th=>th.onclick=()=>{const i=+th.dataset.i; if(st.k===i) st.dir*=-1; else {st.k=i; st.dir=cols[i].asc?1:-1;} table(el,cols,rows,o);});
+  if(o.more){const b=o.more; b.hidden=rs.length<=st.lim; b.textContent=`Show all ${rs.length}`; b.onclick=()=>{st.lim=1e9; table(el,cols,rows,o);};}
+}
+const rcol=h=>({label:h,r:1,val:f=>f.r[h]??null,f:f=>pct(f.r[h])});
+
+/* ---------- overview ---------- */
+function overview(){
+  $('#asof').textContent=`Returns to ${D.asof} · Source: Pulse Labs · Direct plan, growth option`;
+  $('#ov-lede').textContent=D.lede;
+  $('#kpis').innerHTML=D.kpi.map(k=>`<div class="kpi"><span>${esc(k.l)}</span><b>${esc(k.v)}</b><small>${esc(k.s||'')}</small></div>`).join('');
+  $('#answers').innerHTML=D.answers.map(a=>`<button class="ans" data-go="${a.tab}"><span class="tiny">${esc(a.q)}</span><span class="a">${esc(a.a)}</span><span class="d">${esc(a.d)}</span></button>`).join('');
+  $$('#answers .ans').forEach(b=>b.onclick=()=>go(b.dataset.go));
+  const mx=Math.max(...D.broad.flatMap(b=>D.H.map(h=>b.s[h]?.avg||0)));
+  $('#broad').innerHTML=`<table><thead><tr><th>Category</th><th class="r">Funds</th><th class="r">AUM</th>${D.H.map(h=>`<th>${HN[h]}</th>`).join('')}</tr></thead><tbody>${D.broad.map(b=>`<tr><td><span class="dot ${cls(b.cat)}"></span><b>${esc(b.cat)}</b></td><td class="r">${b.n}</td><td class="r">${cr(b.aum)}</td>${D.H.map(h=>{const v=b.s[h]?.avg;return `<td><span class="cellbar ${cls(b.cat)}" style="width:${v>0?v/mx*70:0}px"></span><span class="num">${pct(v)}</span></td>`}).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+/* ---------- returns ---------- */
+function returns(){
+  const h=S.h,m=S.metric, mName={avg:'simple average',med:'median',wavg:'AUM-weighted average'}[m];
+  const br=D.broad.filter(b=>b.s[h]).map(b=>({l:`<b><span class="dot ${cls(b.cat)}"></span>${esc(b.cat)}</b><small>${b.s[h].n} funds with ${HN[h]} of history</small>`,v:b.s[h][m],color:`var(--s${D.catOrder.indexOf(b.cat)+1})`})).sort((a,b)=>b.v-a.v);
+  rank($('#cat-rank'),br); $('#cat-sub').textContent=`${HN[h]}, ${mName}${h==='1Y'?'':' (annualised)'}`;
+  let rows=D.cats.filter(c=>c.s[h]&&(S.cat==='All'||c.cat===S.cat)&&(!$('#min3').checked||c.s[h].n>=3));
+  rows.sort((a,b)=>b.s[h][m]-a.s[h][m]);
+  rank($('#sub-rank'),rows.map(c=>({l:`<b><span class="dot ${cls(c.cat)}"></span>${esc(c.sub)}</b><small>${c.s[h].n} funds · best: ${esc(c.s[h].bestN)} ${pctT(c.s[h].best)} · worst ${pctT(c.s[h].worst)}</small>`,v:c.s[h][m],color:`var(--s${D.catOrder.indexOf(c.cat)+1})`,tip:`${c.sub}: average ${pctT(c.s[h].avg)}, median ${pctT(c.s[h].med)}, AUM-weighted ${pctT(c.s[h].wavg)}`})));
+  $('#sub-sub').textContent=`${rows.length} sub-categories · ${HN[h]} · ${mName}${h==='1Y'?'':' · annualised'}`;
+  $('#cat-legend').innerHTML=D.catOrder.map(c=>`<span><span class="dot ${cls(c)}"></span>${esc(c)}</span>`).join('');
+  const t=rows[0], l=rows[rows.length-1];
+  $('#ret-call').innerHTML=t?`<span class="q">Highest over ${HN[h]}${S.cat==='All'?'':' in '+esc(S.cat)}</span><span class="big">${esc(t.sub)}</span><div class="stat-row"><div><b>${pctT(t.s[h][m])}</b><span>${mName}</span></div><div><b>${t.s[h].n}</b><span>funds</span></div><div><b>${pctT(t.s[h].best)}</b><span>best fund</span></div></div><p class="muted">Best fund: ${esc(t.s[h].bestN)}. Next: ${rows.slice(1,4).map(r=>`${esc(r.sub)} (${pctT(r.s[h][m])})`).join(', ')}. Lowest: ${esc(l.sub)} at ${pctT(l.s[h][m])}.</p><p class="tiny">Narrow thematic and sector groups top most periods and also the bottom of others. Check the same group on a different period before reading it as a pattern.</p>`:'';
+}
+
+/* ---------- AMC ---------- */
+function amc(){
+  const h=S.h;
+  $('#amc-cat').innerHTML=Object.entries(D.amcCat).map(([c,o])=>{const l=o[h]||[];return `<div class="card"><div><h3><span class="dot ${cls(c)}"></span>Best in ${esc(c)}</h3><p class="tiny">Average peer percentile, ${HN[h]}, min ${D.amcMin[c]} ranked funds</p></div><div class="rank">${l.map((r,i)=>`<div class="rr" style="grid-template-columns:22px minmax(0,1fr) 70px"><span class="i">${i+1}</span><div class="l"><b>${esc(r.a)}</b><small>${r.n} funds ranked</small></div><span class="v">${r.pct.toFixed(0)}</span></div>`).join('')||'<p class="tiny">Not enough funds with this history.</p>'}</div></div>`}).join('');
+  const rows=D.amc.filter(a=>a.s[h]);
+  $('#amc-sub').textContent=`${HN[h]} returns · actively managed funds only · AMCs with at least ${D.amcMin.All} ranked funds · ${rows.length} AMCs qualify`;
+  table($('#amc-table'),[
+    {label:'AMC',k:'a',asc:1,f:a=>`<b>${esc(a.a)}</b><small>${a.n} schemes · ${cr(a.aum)}</small>`},
+    {label:'Avg peer percentile',r:0,val:a=>a.s[S.h]?.pct,f:a=>`<span class="cellbar" style="width:${a.s[S.h].pct*0.9}px"></span><span class="num">${a.s[S.h].pct.toFixed(0)}</span>`},
+    {label:'Funds ranked',r:1,val:a=>a.s[S.h]?.n,f:a=>a.s[S.h].n},
+    {label:'Beat peer median',r:1,val:a=>a.s[S.h]?.beat,f:a=>a.s[S.h].beat.toFixed(0)+'%'},
+    {label:'Top-quarter funds',r:1,val:a=>a.s[S.h]?.top,f:a=>a.s[S.h].top},
+    {label:'Category winners',r:1,val:a=>a.s[S.h]?.first,f:a=>a.s[S.h].first},
+    {label:'Avg return',r:1,val:a=>a.s[S.h]?.ret,f:a=>pct(a.s[S.h].ret)},
+  ],rows,{sort:1,idx:1,limit:15,more:$('#amc-more')});
+  const best=D.best.filter(b=>b.h[h]&&(S.cat==='All'||b.cat===S.cat));
+  table($('#best-table'),[
+    {label:'Sub-category',asc:1,val:b=>b.sub,f:b=>`<span class="dot ${cls(b.cat)}"></span><b>${esc(b.sub)}</b><small>${b.h[S.h].n} funds</small>`},
+    {label:'Best fund',asc:1,val:b=>F[b.h[S.h].i].n,f:b=>{const f=F[b.h[S.h].i];return `<b>${esc(f.n)}</b><small>${esc(f.a)} · TER ${nf(f.ter)}% · ${cr(f.aum)}</small>`}},
+    {label:HN[h],r:1,val:b=>b.h[S.h].v,f:b=>pct(b.h[S.h].v)},
+    {label:'Peer avg',r:1,val:b=>b.h[S.h].avg,f:b=>pct(b.h[S.h].avg)},
+    {label:'Lead',r:1,val:b=>b.h[S.h].v-b.h[S.h].avg,f:b=>pct(b.h[S.h].v-b.h[S.h].avg)},
+  ],best,{sort:2});
+  const top=F.filter(f=>f.r[h]!=null&&!f.lev).sort((a,b)=>b.r[h]-a.r[h]).slice(0,15);
+  rank($('#top-rank'),top.map(f=>({l:fundL(f),v:f.r[h],color:`var(--s${D.catOrder.indexOf(f.cat)+1})`})));
+  $('#top-sub').textContent=`Top 15 of ${F.filter(f=>f.r[h]!=null).length} funds on ${HN[h]}${h==='1Y'?'':', annualised'}`;
+  table($('#cons-table'),[{label:'Fund',asc:1,val:f=>f.n,f:fundL},rcol('3Y'),rcol('5Y'),rcol('10Y'),{label:'TER',r:1,k:'ter',f:f=>nf(f.ter)+'%'}],D.cons.map(i=>F[i]),{sort:3});
+}
+
+/* ---------- costs ---------- */
+const EXP=[
+ ['Total expense ratio (TER)','AMC and its service providers','Deducted from NAV every day','The annual cost of running the scheme: fund management fee, registrar and custodian fees, audit, marketing and trustee fees. SEBI caps it on a sliding scale, so larger funds must charge less. Active equity funds are capped at roughly 2.1% for the smallest schemes falling toward 1% for the largest; index funds and ETFs at about 0.9–1%.'],
+ ['Distributor commission','Distributor or adviser, via the AMC','Inside the regular-plan TER','The only difference between a regular and a direct plan of the same scheme. It is why regular plans cost about 0.5–1.2 percentage points more on equity funds.'],
+ ['Exit load','Back into the scheme, not the AMC','Deducted from redemption proceeds','A charge for leaving early, typically 1% within 12 months on equity funds and a few days on liquid funds. ELSS has no exit load because of the 3-year lock-in.'],
+ ['GST on management fee','Government','Charged on top of the fee, within the scheme','18% on the investment management and advisory fee.'],
+ ['Securities transaction tax','Government','On redemption of equity-oriented units','0.001% of the redemption value. The fund also pays STT on the shares it trades.'],
+ ['Stamp duty','Government','On every purchase, SIP and switch-in','0.005% of the amount invested.'],
+ ['Portfolio trading costs','Brokers and exchanges','Inside the NAV','Brokerage and market impact on the fund\'s own trades. A fund with a high turnover ratio pays more.'],
+ ['Capital gains tax','Government','When you sell','Not a fund expense, but the largest cost for most investors. Equity funds: 20% under a year, 12.5% beyond that above ₹1.25 lakh a year. Debt funds bought after April 2023: taxed at slab rate.'],
+];
+function costs(){
+  $('#exp-types').innerHTML=`<table><thead><tr><th>Cost</th><th>Who receives it</th><th>How it is charged</th><th>What it covers</th></tr></thead><tbody>${EXP.map(e=>`<tr><td><b>${e[0]}</b></td><td>${e[1]}</td><td>${e[2]}</td><td class="muted" style="min-width:260px">${e[3]}</td></tr>`).join('')}</tbody></table>`;
+  table($('#ter-cat'),[{label:'Category',asc:1,val:r=>r.g,f:r=>`<b>${esc(r.g)}</b><small>${r.n} schemes with both plans</small>`},{label:'Direct',r:1,k:'d',f:r=>nf(r.d)+'%'},{label:'Regular',r:1,k:'r',f:r=>nf(r.r)+'%'},{label:'Gap',r:1,k:'gap',f:r=>nf(r.gap)+' pts'}],D.terCat,{});
+  const c=D.terCall;
+  $('#ter-call').innerHTML=`<span class="q">Highest fees among active equity managers</span><span class="big">${esc(c.hiR.a)}</span><div class="stat-row"><div><b>${nf(c.hiR.r)}%</b><span>avg regular TER</span></div><div><b>${nf(c.hiR.d)}%</b><span>avg direct TER</span></div><div><b>${c.hiR.n}</b><span>funds</span></div></div><p class="muted">On direct plans the most expensive is ${esc(c.hiD.a)} at ${nf(c.hiD.d)}%. The cheapest active equity line-up is ${esc(c.lo.a)} at ${nf(c.lo.d)}% direct. The single most expensive scheme is ${esc(c.maxF.n)} at ${nf(c.maxF.v)}% (${c.maxF.p} plan).</p><p class="tiny">Small AMCs sit at the top because SEBI's cap is highest for small schemes. Size, more than greed, sets the ranking.</p>`;
+  const p=S.plan, tr=D.amcTer.filter(a=>a[p]!=null).sort((a,b)=>b[p]-a[p]);
+  const el=$('#ter-rank'), lim=el._all?1e9:15;
+  rank(el,tr.slice(0,lim).map(a=>({l:`<b>${esc(a.a)}</b><small>${a.n} active equity funds · direct ${nf(a.d)}% · regular ${nf(a.r)}% · median fund size ${cr(a.med)}</small>`,v:a[p]})),{fmt:v=>nf(v)+'%'});
+  const mb=$('#ter-more'); mb.hidden=tr.length<=lim; mb.textContent=`Show all ${tr.length} AMCs`; mb.onclick=()=>{el._all=1;costs();};
+  scatter();
+  const h=S.h, pool=D.eff[S.eff].map(i=>F[i]).filter(f=>f.r[h]!=null&&f.ter>0);
+  table($('#eff-table'),[{label:'Fund',asc:1,val:f=>f.n,f:fundL},{label:'TER (direct)',r:1,k:'ter',f:f=>nf(f.ter)+'%'},{label:HN[h]+' return',r:1,val:f=>f.r[S.h],f:f=>pct(f.r[S.h])},{label:'Return per 1% of cost',r:1,val:f=>f.r[S.h]/f.ter,f:f=>nf(f.r[S.h]/f.ter,1)+'×'},{label:'Vs peer avg',r:1,val:f=>f.x?.[S.h],f:f=>pct(f.x?.[S.h])},{label:'AUM',r:1,k:'aum',f:f=>cr(f.aum)}],pool,{sort:3,idx:1,limit:20,more:null});
+}
+function scatter(){
+  const h='5Y', pts=D.eff.active.map(i=>F[i]).filter(f=>f.r[h]!=null&&f.ter>0);
+  const W=860,H=320,m={l:44,r:14,t:10,b:36};
+  const xs=pts.map(f=>f.ter), ys=pts.map(f=>f.r[h]);
+  const x0=0,x1=Math.ceil(Math.max(...xs)*4)/4, y0=Math.floor(Math.min(...ys)/5)*5, y1=Math.ceil(Math.max(...ys)/5)*5;
+  const X=v=>m.l+(v-x0)/(x1-x0)*(W-m.l-m.r), Y=v=>H-m.b-(v-y0)/(y1-y0)*(H-m.t-m.b);
+  const n=pts.length, mx=xs.reduce((a,b)=>a+b,0)/n, my=ys.reduce((a,b)=>a+b,0)/n;
+  const sxy=pts.reduce((s,f)=>s+(f.ter-mx)*(f.r[h]-my),0), sxx=xs.reduce((s,v)=>s+(v-mx)**2,0), syy=ys.reduce((s,v)=>s+(v-my)**2,0);
+  const b=sxy/sxx, a=my-b*mx, r=sxy/Math.sqrt(sxx*syy);
+  let g='';
+  for(let v=y0;v<=y1;v+=5) g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--soft)"/><text x="${m.l-6}" y="${Y(v)+3}" text-anchor="end">${v}%</text>`;
+  for(let v=0;v<=x1+1e-9;v+=0.25) g+=`<text x="${X(v)}" y="${H-m.b+14}" text-anchor="middle">${v.toFixed(2)}</text>`;
+  g+=`<text x="${(W+m.l)/2}" y="${H-4}" text-anchor="middle">Direct-plan expense ratio, %</text>`;
+  g+=`<line x1="${X(x0)}" y1="${Y(a+b*x0)}" x2="${X(x1)}" y2="${Y(a+b*x1)}" stroke="var(--s2)" stroke-width="2" stroke-dasharray="5 4"/>`;
+  g+=pts.map((f,i)=>`<circle cx="${X(f.ter).toFixed(1)}" cy="${Y(f.r[h]).toFixed(1)}" r="4" fill="var(--s1)" fill-opacity=".55" stroke="var(--panel)" stroke-width="1" data-i="${i}"/>`).join('');
+  $('#scatter').innerHTML=`<div class="tw"><svg viewBox="0 0 ${W} ${H}" style="min-width:560px;width:100%;height:auto;display:block" role="img" aria-label="Scatter of expense ratio against 5-year return for active equity funds">${g}</svg></div>`;
+  $('#sc-sub').textContent=`${n} active equity funds: 5-year annualised return against direct-plan TER. The dashed line is the fitted trend: each extra 1 point of TER goes with ${b>=0?'+':''}${b.toFixed(1)} points of return a year (correlation ${r.toFixed(2)}).`;
+  const tip=$('#tip');
+  $$('#scatter circle').forEach(c=>{c.onmousemove=e=>{const f=pts[+c.dataset.i]; tip.hidden=false; tip.innerHTML=`<b>${esc(f.n)}</b><br>${esc(f.sub)}<br>TER ${nf(f.ter)}% · 5Y ${pctT(f.r[h])}`; tip.style.left=Math.min(e.clientX+12,innerWidth-270)+'px'; tip.style.top=(e.clientY+12)+'px';}; c.onmouseleave=()=>tip.hidden=true;});
+}
+
+/* ---------- styles ---------- */
+function styles(){
+  const h=S.h, rows=D.styles.filter(s=>s.s[h]).sort((a,b)=>b.s[h].avg-a.s[h].avg);
+  rank($('#st-rank'),rows.map(s=>({l:`<b>${esc(s.label)}</b><small>${s.s[h].n} funds · median ${pctT(s.s[h].med)} · best ${pctT(s.s[h].best)}</small>`,v:s.s[h].avg,color:s.ref?'var(--ink3)':null})));
+  $('#st-sub').textContent=`Average ${HN[h]} return${h==='1Y'?'':', annualised'}. Grey bars are reference points, not styles.`;
+  table($('#st-table'),[{label:'Style',asc:1,val:s=>s.label,f:s=>`<b>${esc(s.label)}</b><small>${esc(s.src)}</small>`},{label:'What the manager does',nosort:1,f:s=>`<span class="muted">${esc(s.desc)}</span>`},
+    ...D.H.map(hh=>({label:hh,r:1,val:s=>s.s[hh]?.avg,f:s=>pct(s.s[hh]?.avg)})),
+    {label:`Leader (${h})`,nosort:1,f:s=>s.s[S.h]?`${esc(s.s[S.h].bestN)}<small>${pctT(s.s[S.h].best)}</small>`:'–'}],D.styles.filter(s=>!s.ref),{});
+  const peCols=[{label:'Group',nosort:1,f:s=>`<b>${esc(s.label)}</b><small>${esc(s.desc)}</small>`},{label:'Funds',r:1,k:'n'},{label:'Avg P/E',r:1,k:'pe',f:s=>nf(s.pe,1)},...D.H.map(hh=>({label:hh,r:1,val:s=>s.s[hh]?.avg,f:s=>pct(s.s[hh]?.avg)}))];
+  table($('#pe-table'),peCols,D.peStyle,{});
+  $('#pe-sub').textContent=D.peNote;
+  table($('#cap-table'),[{label:'Category',nosort:1,f:s=>`<b>${esc(s.label)}</b>`},{label:'Funds',r:1,k:'n'},...D.H.map(hh=>({label:hh,r:1,val:s=>s.s[hh]?.avg,f:s=>pct(s.s[hh]?.avg)})),{label:'3Y volatility',r:1,k:'sd',f:s=>nf(s.sd,1)+'%'}],D.capStyle,{});
+}
+
+/* ---------- ELSS ---------- */
+function elss(){
+  const E=D.elss;
+  $('#elss-kpi').innerHTML=D.H.map(h=>`<div class="kpi"><span>Average ${HN[h]} return</span><b>${pctT(E.avg[h]?.avg)}</b><small>${E.avg[h]?.n||0} funds · median ${pctT(E.avg[h]?.med)}</small></div>`).join('')+`<div class="kpi"><span>ELSS funds</span><b>${E.n}</b><small>${cr(E.aum)} · avg TER ${nf(E.ter)}% direct</small></div>`;
+  const b=F[E.best], o=E.others;
+  $('#elss-call').innerHTML=`<span class="q">Best ELSS right now</span><span class="big">${esc(b.n)}</span><div class="stat-row"><div><b>${pctT(b.r['3Y'])}</b><span>3 years</span></div><div><b>${pctT(b.r['5Y'])}</b><span>5 years</span></div><div><b>${pctT(b.r['10Y'])}</b><span>10 years</span></div><div><b>${nf(b.ter)}%</b><span>TER direct</span></div><div><b>${cr(b.aum)}</b><span>AUM</span></div></div><p class="muted">${esc(E.why)}</p><p class="tiny">Runners-up on the same score: ${o.map(i=>esc(F[i].n)).join(', ')}. Highest 1-year return: ${esc(F[E.top1y].n)} at ${pctT(F[E.top1y].r['1Y'])}.</p>`;
+  $('#elss-cmp').innerHTML=`<table><thead><tr><th>Group</th>${D.H.map(h=>`<th class="r">${h}</th>`).join('')}</tr></thead><tbody>${E.cmp.map(r=>`<tr><td><b>${esc(r.l)}</b></td>${D.H.map(h=>`<td class="r">${pct(r.v[h])}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+  table($('#elss-table'),[{label:'Fund',asc:1,val:f=>f.n,f:f=>`<b>${esc(f.n)}</b><small>${esc(f.a)} · ${esc(f.fm||'')}</small>`},{label:'Score',r:1,val:f=>E.score[f.c],f:f=>E.score[f.c]==null?'–':E.score[f.c].toFixed(0)},rcol('1Y'),rcol('3Y'),rcol('5Y'),rcol('10Y'),{label:'Sharpe 3Y',r:1,k:'sh',f:f=>nf(f.sh)},{label:'Volatility',r:1,k:'sd',f:f=>f.sd==null?'–':nf(f.sd,1)+'%'},{label:'TER',r:1,k:'ter',f:f=>nf(f.ter)+'%'},{label:'AUM',r:1,k:'aum',f:f=>cr(f.aum)},{label:'Rating',r:1,k:'st',f:f=>f.st?'★'.repeat(f.st):'–'}],E.funds.map(i=>F[i]),{sort:1,idx:1});
+}
+
+/* ---------- explorer ---------- */
+function explorer(init){
+  if(init){
+    const opt=(el,all,vals)=>el.innerHTML=`<option value="">${all}</option>`+vals.map(v=>`<option>${esc(v)}</option>`).join('');
+    opt($('#ex-cat'),'All categories',D.catOrder); opt($('#ex-amc'),'All AMCs',[...new Set(F.map(f=>f.a))].sort());
+    const subs=()=>opt($('#ex-sub'),'All sub-categories',[...new Set(F.filter(f=>!$('#ex-cat').value||f.cat===$('#ex-cat').value).map(f=>f.sub))].sort());
+    subs(); $('#ex-cat').onchange=()=>{subs();explorer();}; ['ex-sub','ex-amc'].forEach(i=>$('#'+i).onchange=()=>explorer()); $('#ex-q').oninput=()=>explorer();
+  }
+  const q=$('#ex-q').value.trim().toLowerCase(), c=$('#ex-cat').value, s=$('#ex-sub').value, a=$('#ex-amc').value;
+  const rows=F.filter(f=>(!c||f.cat===c)&&(!s||f.sub===s)&&(!a||f.a===a)&&(!q||(f.n+' '+f.a).toLowerCase().includes(q)));
+  $('#ex-count').textContent=`${rows.length.toLocaleString('en-IN')} schemes`;
+  const el=$('#ex-table'); if(el._st) el._st.lim=50;
+  table(el,[{label:'Fund',asc:1,val:f=>f.n,f:f=>`<b>${esc(f.n)}</b><small>${esc(f.a)} · ${esc(f.sub)}${f.etf?' · ETF':''}${f.bm?' · '+esc(f.bm):''}</small>`},{label:'Category',asc:1,k:'cat',f:f=>`<span class="dot ${cls(f.cat)}"></span>${esc(f.cat)}`},rcol('1Y'),rcol('3Y'),rcol('5Y'),rcol('10Y'),{label:'TER',r:1,k:'ter',f:f=>f.ter==null?'–':nf(f.ter)+'%'},{label:'AUM',r:1,k:'aum',f:f=>cr(f.aum)},{label:'Sharpe 3Y',r:1,k:'sh',f:f=>nf(f.sh)},{label:'Risk',asc:1,k:'rk',f:f=>esc(f.rk||'–')},{label:'Since',r:1,asc:1,k:'inc',f:f=>esc(f.inc||'–')}],rows,{sort:4,limit:50,more:$('#ex-more')});
+}
+
+/* ---------- product map ---------- */
+const MAP=[
+ ['Mutual funds (equity, debt, hybrid, index)','Pooled','c','c','y','SIP from ₹100–500','Return data loaded in this dashboard. Institutions use liquid, overnight and debt funds for treasury.'],
+ ['ETFs and index funds','Pooled','y','y','c','One unit','Institutions (EPFO, insurers) are the largest ETF holders.'],
+ ['Bank fixed and recurring deposits','Fixed income','c','y','y','₹1,000','Insured up to ₹5 lakh per bank. Bulk deposits are priced separately for institutions.'],
+ ['Small savings: PPF, NSC, SCSS, Sukanya, KVP','Fixed income','c','y','','₹250–1,000','Individuals only. PPF capped at ₹1.5 lakh a year, SCSS at ₹30 lakh.'],
+ ['EPF, VPF and NPS','Retirement','c','y','','₹500 (NPS)','NPS adds an extra ₹50,000 deduction under the old regime.'],
+ ['Listed equity shares','Equity','y','c','c','One share','Direct stock picking. HNIs and institutions also use block deals and derivatives.'],
+ ['Government securities, T-bills, SDLs','Fixed income','y','y','c','₹10,000 via RBI Retail Direct','The core holding for banks, insurers and pension funds.'],
+ ['Corporate bonds and NCDs','Fixed income','y','c','c','₹10,000 face value','Retail access through online bond platforms; most issuance is privately placed to institutions.'],
+ ['Gold: ETFs, gold funds, sovereign gold bonds','Commodity','c','y','y','₹100 or one unit','No fresh sovereign gold bond issues since 2024; existing series trade on exchanges.'],
+ ['REITs and InvITs','Real assets','y','c','c','One unit','Listed, income-distributing. Privately placed InvITs are institution-only.'],
+ ['Life insurance, ULIPs and annuities','Insurance','c','y','','Varies by policy','Protection first; ULIP proceeds are taxed when annual premium exceeds ₹2.5 lakh.'],
+ ['Specialized Investment Funds (SIF)','Alternatives','','c','y','₹10 lakh','New long-short category run by mutual fund houses. Pulse already lists '+D.sif+' of them.'],
+ ['Portfolio Management Services (PMS)','Alternatives','','c','y','₹50 lakh','Segregated, concentrated portfolios held in the client\'s own demat account.'],
+ ['Alternative Investment Funds (Cat I, II, III)','Alternatives','','c','c','₹1 crore','Venture, private equity, private credit, long-short and hedge strategies.'],
+ ['Unlisted and pre-IPO shares','Equity','','c','c','Deal-specific','Illiquid, with a six-month lock-in after listing.'],
+ ['Structured products and market-linked debentures','Hybrid','','c','y','₹10 lakh and up','Taxed at slab rate since 2023, which removed most of their appeal.'],
+ ['Overseas assets through LRS or GIFT City','Global','y','c','y','USD 250,000 a year LRS cap','Foreign stocks, funds and property. GIFT City funds usually start at USD 150,000.'],
+ ['Money market: CP, CD, TREPS, repo','Fixed income','','','c','₹5 lakh lots','Treasury and liquidity management.'],
+ ['Securitised debt and pass-through certificates','Fixed income','','y','c','Deal-specific','Bought by banks, NBFCs, mutual funds and insurers.'],
+ ['Derivatives: index and stock F&O, interest-rate swaps, FX','Derivatives','y','y','c','One lot','Hedging for institutions; SEBI data shows most retail F&O traders lose money.'],
+];
+function pmap(){
+  const p=v=>v==='c'?'<span class="pill core">Core</span>':v==='y'?'<span class="pill y">Used</span>':'<span class="pill">–</span>';
+  $('#map-table').innerHTML=`<table><thead><tr><th>Product</th><th>Asset class</th><th>Retail</th><th>High net worth</th><th>Institutional</th><th>Typical minimum</th><th>Notes</th></tr></thead><tbody>${MAP.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${p(r[2])}</td><td>${p(r[3])}</td><td>${p(r[4])}</td><td>${r[5]}</td><td class="muted" style="min-width:240px">${r[6]}</td></tr>`).join('')}</tbody></table>`;
+}
+
+/* ---------- shell ---------- */
+function controls(){
+  $$('[data-ctl="h"]').forEach(s=>s.innerHTML=D.H.map(h=>`<button data-v="${h}">${h}</button>`).join(''));
+  $$('[data-ctl="cat"]').forEach(s=>s.innerHTML=['All',...D.catOrder].map(c=>`<button data-v="${esc(c)}">${esc(c)}</button>`).join(''));
+  $$('.seg').forEach(s=>{const k=s.dataset.ctl; $$('button',s).forEach(b=>{b.setAttribute('aria-pressed',S[k]===b.dataset.v); b.onclick=()=>{S[k]=b.dataset.v; sync(); render();};});});
+  $('#min3').onchange=render;
+}
+const sync=()=>$$('.seg').forEach(s=>$$('button',s).forEach(b=>b.setAttribute('aria-pressed',S[s.dataset.ctl]===b.dataset.v)));
+function render(){ returns(); amc(); costs(); styles(); }
+function go(t){
+  if(!TABS.some(x=>x[0]===t)) t='overview';
+  S.tab=t; $$('section.tab').forEach(s=>s.hidden=s.id!=='t-'+t);
+  $$('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));
+  try{history.replaceState(null,'','#'+t)}catch(e){}
+  scrollTo(0,0);
+}
+$('#tabs').innerHTML=TABS.map(t=>`<button role="tab" data-t="${t[0]}">${t[1]}</button>`).join('');
+$$('#tabs button').forEach(b=>b.onclick=()=>go(b.dataset.t));
+$('#method').innerHTML=D.method.map(m=>`<li>${m}</li>`).join('');
+controls(); overview(); render(); elss(); explorer(true); pmap();
+go((location.hash||'').slice(1)||'overview');
+</script>
